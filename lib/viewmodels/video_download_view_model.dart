@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import '../models/download_playlist.dart';
 import '../models/downloaded_video.dart';
+import '../utils/dir_util.dart';
 
 class VideoDownloadViewModel extends ChangeNotifier {
   final List<DownloadedVideo> _downloadedVideoLst = [];
@@ -15,13 +17,17 @@ class VideoDownloadViewModel extends ChangeNotifier {
   YoutubeExplode get yt => _yt;
   set yt(YoutubeExplode yt) => _yt = yt;
 
-  final Directory _audioDownloadDir = Directory('/storage/emulated/0/Download');
+  Future<void> downloadPlaylistVideos(
+      DownloadPlaylist playlistToDownload) async {
+    playlistToDownload.id =
+        PlaylistId.parsePlaylistId(playlistToDownload.url) ?? '';
+    final Playlist youtubePlaylist =
+        await _yt.playlists.get(playlistToDownload.id);
+    playlistToDownload.title = youtubePlaylist.title;
+    playlistToDownload.downloadPath =
+        '${DirUtil.getPlaylistDownloadHomePath()}${Platform.pathSeparator}${playlistToDownload.title}';
 
-  Future<void> downloadPlaylistVideos(String playlistUrl) async {
-    final String? playlistId = PlaylistId.parsePlaylistId(playlistUrl);
-    final Playlist playlist = await _yt.playlists.get(playlistId);
-
-    await for (Video video in _yt.playlists.getVideos(playlistId)) {
+    await for (Video video in _yt.playlists.getVideos(playlistToDownload.id)) {
       final alreadyDownloaded = _downloadedVideoLst
           .any((downloadedVideo) => downloadedVideo.id == video.id.toString());
 
@@ -40,25 +46,24 @@ class VideoDownloadViewModel extends ChangeNotifier {
       String validAudioFileName =
           _replaceUnauthorizedDirOrFileNameChars(video.title);
 
-      final String filePath = '${_audioDownloadDir.path}/${video.title}.mp3';
+      final String downloadVideoFilePathName =
+          '${playlistToDownload.downloadPath}${Platform.pathSeparator}${video.title}.mp3';
 
       final downloadedVideo = DownloadedVideo(
         id: video.id.toString(),
         title: video.title,
-        audioFilePath: filePath,
+        audioFilePath: downloadVideoFilePathName,
         downloadDate: DateTime.now(),
       );
 
-      _downloadedVideoLst.add(downloadedVideo);
-
       // Download the DownloadedVideo file
-      await _downloadAudioFile(video, audioStreamInfo, filePath);
-      // Do something with the downloaded file
+      await _downloadAudioFile(
+          video, audioStreamInfo, downloadVideoFilePathName);
+
+      playlistToDownload.addDownloadedVideo(downloadedVideo);
 
       notifyListeners();
     }
-
-//    notifyListeners();
   }
 
   Future<void> _downloadAudioFile(
@@ -66,7 +71,8 @@ class VideoDownloadViewModel extends ChangeNotifier {
     final YoutubeExplode yt = YoutubeExplode();
 
     final IOSink output = File(filePath).openWrite();
-    final Stream<List<int>> stream = yt.videos.streamsClient.get(audioStreamInfo);
+    final Stream<List<int>> stream =
+        yt.videos.streamsClient.get(audioStreamInfo);
 
     await stream.pipe(output);
   }
@@ -108,5 +114,36 @@ class VideoDownloadViewModel extends ChangeNotifier {
     // replaceUnauthorizedDirOrFileNameChars(videoTitle) + '.mp3' can be executed
     // if validFileName.trim() is NOT done.
     return validFileName.trim();
+  }
+}
+
+void main() {
+  runApp(const MainApp());
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () async {
+              VideoDownloadViewModel videoDownloadViewModel =
+                  VideoDownloadViewModel();
+              DownloadPlaylist playlistToDownload = DownloadPlaylist(
+                  url:
+                      'https://youtube.com/playlist?list=PLzwWSJNcZTMTB9iwbu77FGokc3WsoxuV0');
+              await videoDownloadViewModel
+                  .downloadPlaylistVideos(playlistToDownload);
+              print('***************** **************');
+            },
+            child: const Text('Click'),
+          ),
+        ),
+      ),
+    );
   }
 }

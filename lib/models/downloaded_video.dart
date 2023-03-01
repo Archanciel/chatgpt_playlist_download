@@ -1,5 +1,6 @@
 import 'dart:io';
 
+/// Video downloaded informations
 class DownloadedVideo {
   final String id;
   final String title;
