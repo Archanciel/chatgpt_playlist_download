@@ -6,7 +6,7 @@ const String kDownloadAppDir = '/storage/emulated/0/Download/audio';
 
 // files in this local test dir are stored in project test_data dir updated
 // on GitHub
-const String kDownloadAppTestDir = 'c:\\temp\\test\\chatGPTaudio';
+const String kDownloadAppTestDir = 'c:\\temp\\test\\audio';
 
 const String kDefaultJsonFileName = 'circadian.json';
 const double kVerticalFieldDistance = 23.0;
