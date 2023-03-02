@@ -23,7 +23,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
                   Provider.of<ListViewModel>(context, listen: false)
                       .toggleList();
                 },
-                child: Text('Toggle List'),
+                child: const Text('Toggle List'),
               ),
             ),
             Expanded(
@@ -32,25 +32,34 @@ class _ListViewWidgetState extends State<ListViewWidget> {
                   Provider.of<ListViewModel>(context, listen: false)
                       .deleteSelectedItem(context);
                 },
-                child: Text('Delete Selected Item'),
+                child: const Text('Delete'),
               ),
             ),
             Expanded(
-              child: ElevatedButton(
+              child: IconButton(
                 onPressed: () {
                   Provider.of<ListViewModel>(context, listen: false)
                       .moveSelectedItemUp();
                 },
-                child: Text('Move Selected Item Up'),
+                padding: EdgeInsets.all(0),
+                icon: const Icon(
+                  Icons.arrow_drop_up,
+                  size: 50,
+                ),
               ),
             ),
             Expanded(
-              child: ElevatedButton(
+              child: IconButton(
                 onPressed: () {
                   Provider.of<ListViewModel>(context, listen: false)
                       .moveSelectedItemDown();
                 },
-                child: Text('Move Selected Item Down'),
+                padding: EdgeInsets.all(0),
+                icon: const Icon(
+                  Icons.arrow_drop_down,
+                  size: 50,
+                ),
+                ba
               ),
             ),
           ],
@@ -68,7 +77,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
                       trailing: Checkbox(
                         value: item.isSelected,
                         onChanged: (value) {
-                           model.selectItem(context, index);
+                          model.selectItem(context, index);
                         },
                       ),
                     );
