@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 
 const String kApplicationName = "ChatGPT Playlist Download";
 const String kApplicationVersion = '0.1';
-const String kDownloadAppDir = '/storage/emulated/0/Download/chatGPTaudio';
+const String kDownloadAppDir = '/storage/emulated/0/Download/audio';
 
 // files in this local test dir are stored in project test_data dir updated
 // on GitHub

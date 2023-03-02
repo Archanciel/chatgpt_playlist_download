@@ -16,4 +16,9 @@ class DownloadPlaylist {
   void addDownloadedVideo(DownloadedVideo downloadedVideo) {
     downloadedVideoLst.add(downloadedVideo);
   }
+
+  @override
+  String toString() {
+    return '$title';
+  }
 }

@@ -13,9 +13,7 @@ class VideoDownloadViewModel extends ChangeNotifier {
   final List<DownloadedVideo> _downloadedVideoLst = [];
   List<DownloadedVideo> get downloadedVideoLst => _downloadedVideoLst;
 
-  YoutubeExplode _yt = YoutubeExplode();
-  YoutubeExplode get yt => _yt;
-  set yt(YoutubeExplode yt) => _yt = yt;
+  final YoutubeExplode _yt = YoutubeExplode();
 
   Future<void> downloadPlaylistVideos(
       DownloadPlaylist playlistToDownload) async {
@@ -24,8 +22,10 @@ class VideoDownloadViewModel extends ChangeNotifier {
     final Playlist youtubePlaylist =
         await _yt.playlists.get(playlistToDownload.id);
     playlistToDownload.title = youtubePlaylist.title;
+    var playlistDownloadHomePath = await DirUtil.getPlaylistDownloadHomePath();
     playlistToDownload.downloadPath =
-        '${DirUtil.getPlaylistDownloadHomePath()}${Platform.pathSeparator}${playlistToDownload.title}';
+        '${playlistDownloadHomePath}${Platform.pathSeparator}${playlistToDownload.title}';
+    await DirUtil.createDirIfNotExist(path: playlistToDownload.downloadPath);
 
     await for (Video video in _yt.playlists.getVideos(playlistToDownload.id)) {
       final alreadyDownloaded = _downloadedVideoLst
@@ -40,19 +40,17 @@ class VideoDownloadViewModel extends ChangeNotifier {
       final AudioOnlyStreamInfo audioStreamInfo =
           streamManifest.audioOnly.first;
 
-      final String audioTitle = video.title;
-      final Duration? audioDuration = video.duration;
-
       String validAudioFileName =
           _replaceUnauthorizedDirOrFileNameChars(video.title);
 
       final String downloadVideoFilePathName =
-          '${playlistToDownload.downloadPath}${Platform.pathSeparator}${video.title}.mp3';
+          '${playlistToDownload.downloadPath}${Platform.pathSeparator}$validAudioFileName.mp3';
 
       final downloadedVideo = DownloadedVideo(
         id: video.id.toString(),
         title: video.title,
         audioFilePath: downloadVideoFilePathName,
+        audioDuration: video.duration,
         downloadDate: DateTime.now(),
       );
 
@@ -67,7 +65,7 @@ class VideoDownloadViewModel extends ChangeNotifier {
   }
 
   Future<void> _downloadAudioFile(
-      Video video, AudioStreamInfo audioStreamInfo, String filePath) async {
+      Video video, AudioStreamInfo audioStreamInfo, String filePath,) async {
     final YoutubeExplode yt = YoutubeExplode();
 
     final IOSink output = File(filePath).openWrite();
@@ -114,36 +112,5 @@ class VideoDownloadViewModel extends ChangeNotifier {
     // replaceUnauthorizedDirOrFileNameChars(videoTitle) + '.mp3' can be executed
     // if validFileName.trim() is NOT done.
     return validFileName.trim();
-  }
-}
-
-void main() {
-  runApp(const MainApp());
-}
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              VideoDownloadViewModel videoDownloadViewModel =
-                  VideoDownloadViewModel();
-              DownloadPlaylist playlistToDownload = DownloadPlaylist(
-                  url:
-                      'https://youtube.com/playlist?list=PLzwWSJNcZTMTB9iwbu77FGokc3WsoxuV0');
-              await videoDownloadViewModel
-                  .downloadPlaylistVideos(playlistToDownload);
-              print('***************** **************');
-            },
-            child: const Text('Click'),
-          ),
-        ),
-      ),
-    );
   }
 }
