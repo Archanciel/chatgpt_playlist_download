@@ -59,7 +59,6 @@ class _ListViewWidgetState extends State<ListViewWidget> {
                   Icons.arrow_drop_down,
                   size: 50,
                 ),
-                ba
               ),
             ),
           ],
