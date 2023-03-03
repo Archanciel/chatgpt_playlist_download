@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         title: 'MVVM Example',
         home: Scaffold(
           appBar: AppBar(
-            title: Text('MVVM Example'),
+            title: const Text('MVVM Example'),
           ),
           body: ListViewWidget(),
         ),
