@@ -85,11 +85,11 @@ void main() {
 
       final upButton = find.byIcon(Icons.arrow_drop_up);
       expect(upButton, findsOneWidget);
-//      expect(tester.widget<IconButton>(upButton).enabled, isFalse);
+      expect(tester.widget<IconButton>(upButton).color, Colors.black38);
 
       final downButton = find.byIcon(Icons.arrow_drop_down);
       expect(downButton, findsOneWidget);
-//      expect(tester.widget<IconButton>(downButton).enabled, isFalse);
+      expect(tester.widget<IconButton>(downButton).color, Colors.black38);
     });
 
     testWidgets('should enable buttons when item selected',
