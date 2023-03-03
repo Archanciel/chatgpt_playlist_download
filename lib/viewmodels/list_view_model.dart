@@ -5,22 +5,41 @@ import '../models/list_model.dart';
 
 class ListViewModel extends ChangeNotifier {
   bool _isListExpanded = false;
-  ListModel _model = ListModel();
-
-  List<ListItem> get items => _model.items;
+  bool _isButton1Enabled = false;
+  bool _isButton2Enabled = false;
+  bool _isButton3Enabled = false;
 
   bool get isListExpanded => _isListExpanded;
+  bool get isButton1Enabled => _isButton1Enabled;
+  bool get isButton2Enabled => _isButton2Enabled;
+  bool get isButton3Enabled => _isButton3Enabled;
+
+  final ListModel _model = ListModel();
+  List<ListItem> get items => _model.items;
 
   void toggleList() {
     _isListExpanded = !_isListExpanded;
+
+    if (!_isListExpanded) {
+      _disableButtons();
+    } else {
+      if (_model.isListItemSelected) {
+        _enableButtons();
+      } else {
+        _disableButtons();
+      }
+    }
+
     notifyListeners();
   }
 
   void selectItem(BuildContext context, int index) {
-    bool isOneItemSelected =_model.selectItem(index);
+    bool isOneItemSelected = _model.selectItem(index);
 
     if (!isOneItemSelected) {
-      _disableButtons(context);
+      _disableButtons();
+    } else {
+      _enableButtons();
     }
 
     notifyListeners();
@@ -31,7 +50,8 @@ class ListViewModel extends ChangeNotifier {
 
     if (selectedIndex != -1) {
       _model.deleteItem(selectedIndex);
-      _disableButtons(context);
+      _disableButtons();
+
       notifyListeners();
     }
   }
@@ -61,30 +81,15 @@ class ListViewModel extends ChangeNotifier {
     return -1;
   }
 
-  void _disableButtons(BuildContext context) {
-    for (int i = 1; i <= 3; i++) {
-      Provider.of<ListViewModel>(context, listen: false)
-          .setButtonState(context, i, false);
-    }
-    notifyListeners();
+  void _enableButtons() {
+    _isButton1Enabled = true;
+    _isButton2Enabled = true;
+    _isButton3Enabled = true;
   }
 
-  void setButtonState(BuildContext context, int buttonIndex, bool isEnabled) {
-    switch (buttonIndex) {
-      case 1:
-        break;
-      case 2:
-        Provider.of<ListViewModel>(context, listen: false)
-            .setButtonState(context, 3, isEnabled);
-        break;
-      case 3:
-        Provider.of<ListViewModel>(context, listen: false)
-            .setButtonState(context, 2, isEnabled);
-        break;
-      case 4:
-        break;
-    }
-
-    notifyListeners();
+  void _disableButtons() {
+    _isButton1Enabled = false;
+    _isButton2Enabled = false;
+    _isButton3Enabled = false;
   }
 }

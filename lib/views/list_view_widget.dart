@@ -28,19 +28,23 @@ class _ListViewWidgetState extends State<ListViewWidget> {
             ),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  Provider.of<ListViewModel>(context, listen: false)
-                      .deleteSelectedItem(context);
-                },
+                onPressed: Provider.of<ListViewModel>(context).isButton1Enabled
+                    ? () {
+                        Provider.of<ListViewModel>(context, listen: false)
+                            .deleteSelectedItem(context);
+                      }
+                    : null,
                 child: const Text('Delete'),
               ),
             ),
             Expanded(
               child: IconButton(
-                onPressed: () {
-                  Provider.of<ListViewModel>(context, listen: false)
-                      .moveSelectedItemUp();
-                },
+                onPressed: Provider.of<ListViewModel>(context).isButton2Enabled
+                    ? () {
+                        Provider.of<ListViewModel>(context, listen: false)
+                            .moveSelectedItemUp();
+                      }
+                    : null,
                 padding: EdgeInsets.all(0),
                 icon: const Icon(
                   Icons.arrow_drop_up,
@@ -50,10 +54,12 @@ class _ListViewWidgetState extends State<ListViewWidget> {
             ),
             Expanded(
               child: IconButton(
-                onPressed: () {
-                  Provider.of<ListViewModel>(context, listen: false)
-                      .moveSelectedItemDown();
-                },
+                onPressed: Provider.of<ListViewModel>(context).isButton3Enabled
+                    ? () {
+                        Provider.of<ListViewModel>(context, listen: false)
+                            .moveSelectedItemDown();
+                      }
+                    : null,
                 padding: EdgeInsets.all(0),
                 icon: const Icon(
                   Icons.arrow_drop_down,

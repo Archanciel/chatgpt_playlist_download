@@ -8,6 +8,11 @@ class ListItem {
 }
 
 class ListModel extends ChangeNotifier {
+  bool _isListItemSelected = false;
+
+  bool get isListItemSelected => _isListItemSelected;
+  set isListItemSelected(bool value) => _isListItemSelected = value;
+
   final List<ListItem> _items = [
     ListItem(name: 'Item 1', isSelected: false),
     ListItem(name: 'Item 2', isSelected: false),
@@ -32,11 +37,15 @@ class ListModel extends ChangeNotifier {
       }
     }
 
-    return _items[index].isSelected;
+    _isListItemSelected = _items[index].isSelected;
+
+    return _isListItemSelected;
   }
 
   void deleteItem(int index) {
     _items.removeAt(index);
+    _isListItemSelected = false;
+    
     notifyListeners();
   }
 
