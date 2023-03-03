@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ListViewModel(context),
+      create: (_) => ListViewModel(),
       child: MaterialApp(
         title: 'MVVM Example',
         home: Scaffold(

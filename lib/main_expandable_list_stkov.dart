@@ -11,8 +11,10 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ListViewModel(context),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ListViewModel()),
+      ],
       child: MaterialApp(
         title: 'MVVM Example',
         home: Scaffold(
@@ -120,17 +122,8 @@ class ListViewModel extends ChangeNotifier {
   ListModel _model = ListModel();
 
   List<ListItem> get items => _model.items;
-  late BuildContext _context;
 
   bool get isListExpanded => _isListExpanded;
-
-  ListViewModel(BuildContext context) {
-    _context = context;
-  }
-
-  void setContext(BuildContext context) {
-    _context = context;
-  }
 
   void toggleList() {
     _isListExpanded = !_isListExpanded;
@@ -199,7 +192,7 @@ class ListViewModel extends ChangeNotifier {
             .setButtonState(context, 3, isEnabled);
         break;
       case 3:
-        Provider.of<ListViewModel>(_context, listen: false)
+        Provider.of<ListViewModel>(context, listen: false)
             .setButtonState(context, 2, isEnabled);
         break;
       case 4:
