@@ -19,6 +19,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
           children: <Widget>[
             Expanded(
               child: ElevatedButton(
+                key: Key('toggle_button'),
                 onPressed: () {
                   Provider.of<ListViewModel>(context, listen: false)
                       .toggleList();
@@ -28,6 +29,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
             ),
             Expanded(
               child: ElevatedButton(
+                key: Key('delete_button'),
                 onPressed: Provider.of<ListViewModel>(context).isButton1Enabled
                     ? () {
                         Provider.of<ListViewModel>(context, listen: false)
@@ -39,6 +41,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
             ),
             Expanded(
               child: IconButton(
+                key: Key('move_up_button'),
                 onPressed: Provider.of<ListViewModel>(context).isButton2Enabled
                     ? () {
                         Provider.of<ListViewModel>(context, listen: false)
@@ -54,6 +57,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
             ),
             Expanded(
               child: IconButton(
+                key: Key('move_down_button'),
                 onPressed: Provider.of<ListViewModel>(context).isButton3Enabled
                     ? () {
                         Provider.of<ListViewModel>(context, listen: false)
