@@ -45,8 +45,6 @@ class ListModel extends ChangeNotifier {
   void deleteItem(int index) {
     _items.removeAt(index);
     _isListItemSelected = false;
-    
-    notifyListeners();
   }
 
   void moveItemUp(int index) {

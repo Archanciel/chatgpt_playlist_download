@@ -424,27 +424,12 @@ void main() {
       ));
       expect(firstListItemCheckbox.value, isTrue);
 
-      // Find the ListTile with text 'Item 4'
-      Finder listItemFourTileFinder = find.widgetWithText(ListTile, 'Item 4');
-
-      // Find the Checkbox widget inside the ListTile
-      Finder checkboxFinder = find.descendant(
-        of: listItemFourTileFinder,
-        matching: find.byType(Checkbox),
+      // Find and select the ListTile with text 'Item 4'
+      String itemTextStr = 'Item 4';
+      await findSelectAndTestListTileCheckbox(
+        tester: tester,
+        itemTextStr: itemTextStr,
       );
-
-      // Assert that the checkbox is not selected
-      expect(tester.widget<Checkbox>(checkboxFinder).value, false);
-
-      // now tap the fourth item checkbox
-      await tester.tap(find.descendant(
-        of: listItemFourTileFinder,
-        matching: find.byWidgetPredicate((widget) => widget is Checkbox),
-      ));
-      await tester.pump();
-
-      // Assert that the fourth item checkbox is selected
-      expect(tester.widget<Checkbox>(checkboxFinder).value, true);
 
       // Verify that the first ListTile checkbox is no longer
       // selected. The check box must be obtained again
@@ -458,21 +443,34 @@ void main() {
 
     testWidgets('should select and delete item', (WidgetTester tester) async {
       // Build ListViewWidget with a list containing one item
-      final viewModel = ListViewModel();
-      viewModel.items.add(ListItem(name: 'Test', isSelected: false));
+      final String itemToDeleteTextStr = 'Item 3';
 
       await tester.pumpWidget(
         MultiProvider(
           providers: [
-            ChangeNotifierProvider.value(value: viewModel),
+            ChangeNotifierProvider(create: (_) => ListViewModel()),
           ],
           child: MaterialApp(
+            title: 'MVVM Example',
             home: Scaffold(
+              appBar: AppBar(
+                title: const Text('MVVM Example'),
+              ),
               body: ListViewWidget(),
             ),
           ),
         ),
       );
+
+      // displaying the list
+      final Finder toggleButtonFinder = find.byKey(ValueKey('toggle_button'));
+      await tester.tap(toggleButtonFinder);
+      await tester.pump();
+
+      Finder listTileFinder = find.byType(ListTile);
+      List<Widget> listTileLst =
+          tester.widgetList(listTileFinder).toList();
+      expect(listTileLst.length, 10);
 
       // Verify that the Delete button is disabled
       expect(find.text('Delete'), findsOneWidget);
@@ -483,9 +481,11 @@ void main() {
         isA<ElevatedButton>().having((b) => b.enabled, 'enabled', false),
       );
 
-      // Tap the Checkbox to select the item
-      await tester.tap(find.byType(Checkbox));
-      await tester.pump();
+      // Find and select the ListTile with text 'To delete'
+      await findSelectAndTestListTileCheckbox(
+        tester: tester,
+        itemTextStr: itemToDeleteTextStr,
+      );
 
       // Verify that the Delete button is now enabled
       expect(
@@ -496,11 +496,13 @@ void main() {
 
       // Tap the Delete button
       await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
-      await tester.pump();
+      await tester.pump ();
 
       // Verify that the item was deleted
-      expect(find.byType(ListTile), findsNothing);
-      expect(viewModel.items.length, equals(0));
+      listTileFinder = find.byType(ListTile);
+      listTileLst =
+          tester.widgetList(listTileFinder).toList();
+      expect(listTileLst.length, 9);
     });
 
     testWidgets('should select and move down item',
@@ -694,4 +696,30 @@ void main() {
       expect(viewModel.items.length, equals(0));
     });
   });
+}
+
+Future<void> findSelectAndTestListTileCheckbox({
+  required WidgetTester tester,
+  required String itemTextStr,
+}) async {
+  Finder listItemFourTileFinder = find.widgetWithText(ListTile, itemTextStr);
+
+  // Find the Checkbox widget inside the ListTile
+  Finder checkboxFinder = find.descendant(
+    of: listItemFourTileFinder,
+    matching: find.byType(Checkbox),
+  );
+
+  // Assert that the checkbox is not selected
+  expect(tester.widget<Checkbox>(checkboxFinder).value, false);
+
+  // now tap the fourth item checkbox
+  await tester.tap(find.descendant(
+    of: listItemFourTileFinder,
+    matching: find.byWidgetPredicate((widget) => widget is Checkbox),
+  ));
+  await tester.pump();
+
+  // Assert that the fourth item checkbox is selected
+  expect(tester.widget<Checkbox>(checkboxFinder).value, true);
 }
