@@ -74,19 +74,19 @@ class _ListViewWidgetState extends State<ListViewWidget> {
           ],
         ),
         Consumer<ListViewModel>(
-          builder: (context, model, child) {
-            if (model.isListExpanded) {
+          builder: (context, listViewModel, child) {
+            if (listViewModel.isListExpanded) {
               return Expanded(
                 child: ListView.builder(
-                  itemCount: model.items.length,
+                  itemCount: listViewModel.items.length,
                   itemBuilder: (context, index) {
-                    ListItem item = model.items[index];
+                    ListItem item = listViewModel.items[index];
                     return ListTile(
                       title: Text(item.name),
                       trailing: Checkbox(
                         value: item.isSelected,
                         onChanged: (value) {
-                          model.selectItem(context, index);
+                          listViewModel.selectItem(context, index);
                         },
                       ),
                     );

@@ -22,7 +22,6 @@ class ListViewModel extends ChangeNotifier {
     if (!_isListExpanded) {
       _disableButtons();
     } else {
-      print('******************** ${items.length} ***************');
       if (_model.isListItemSelected) {
         _enableButtons();
       } else {

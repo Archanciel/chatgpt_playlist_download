@@ -442,9 +442,6 @@ void main() {
     });
 
     testWidgets('should select and delete item', (WidgetTester tester) async {
-      // Build ListViewWidget with a list containing one item
-      final String itemToDeleteTextStr = 'Item 3';
-
       await tester.pumpWidget(
         MultiProvider(
           providers: [
@@ -467,10 +464,13 @@ void main() {
       await tester.tap(toggleButtonFinder);
       await tester.pump();
 
-      Finder listTileFinder = find.byType(ListTile);
-      List<Widget> listTileLst =
-          tester.widgetList(listTileFinder).toList();
-      expect(listTileLst.length, 10);
+      Finder listViewFinder = find.byType(ListViewWidget);
+
+      // tester.element(listViewFinder) returns a StatefulElement
+      // which is a BuildContext
+      ListViewModel listViewModel =
+          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      expect(listViewModel.items.length, 10);
 
       // Verify that the Delete button is disabled
       expect(find.text('Delete'), findsOneWidget);
@@ -482,6 +482,8 @@ void main() {
       );
 
       // Find and select the ListTile with text 'To delete'
+      const String itemToDeleteTextStr = 'Item 3';
+
       await findSelectAndTestListTileCheckbox(
         tester: tester,
         itemTextStr: itemToDeleteTextStr,
@@ -496,13 +498,22 @@ void main() {
 
       // Tap the Delete button
       await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
-      await tester.pump ();
+      await tester.pump();
 
-      // Verify that the item was deleted
-      listTileFinder = find.byType(ListTile);
-      listTileLst =
-          tester.widgetList(listTileFinder).toList();
-      expect(listTileLst.length, 9);
+      // Verify that the item was deleted by checking that
+      // the ListViewModel.items getter return a list whose
+      // length is 10 minus 1 and secondly verify that 
+      // the deleted ListTile is no longer displayed.
+
+      listViewFinder = find.byType(ListViewWidget);
+
+      // tester.element(listViewFinder) returns a StatefulElement
+      // which is a BuildContext
+      listViewModel =
+          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      expect(listViewModel.items.length, 9);
+
+      expect(find.widgetWithText(ListTile, itemToDeleteTextStr), findsNothing);
     });
 
     testWidgets('should select and move down item',
@@ -702,8 +713,8 @@ Future<void> findSelectAndTestListTileCheckbox({
   required WidgetTester tester,
   required String itemTextStr,
 }) async {
-  Finder listItemFourTileFinder = find.widgetWithText(ListTile, itemTextStr);
 
+  Finder listItemFourTileFinder = find.widgetWithText(ListTile, itemTextStr);
   // Find the Checkbox widget inside the ListTile
   Finder checkboxFinder = find.descendant(
     of: listItemFourTileFinder,
