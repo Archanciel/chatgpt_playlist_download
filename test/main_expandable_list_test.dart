@@ -468,8 +468,9 @@ void main() {
 
       // tester.element(listViewFinder) returns a StatefulElement
       // which is a BuildContext
-      ListViewModel listViewModel =
-          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      ListViewModel listViewModel = Provider.of<ListViewModel>(
+          tester.element(listViewFinder),
+          listen: false);
       expect(listViewModel.items.length, 10);
 
       // Verify that the Delete button is disabled
@@ -502,22 +503,21 @@ void main() {
 
       // Verify that the item was deleted by checking that
       // the ListViewModel.items getter return a list whose
-      // length is 10 minus 1 and secondly verify that 
+      // length is 10 minus 1 and secondly verify that
       // the deleted ListTile is no longer displayed.
 
       listViewFinder = find.byType(ListViewWidget);
 
       // tester.element(listViewFinder) returns a StatefulElement
       // which is a BuildContext
-      listViewModel =
-          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      listViewModel = Provider.of<ListViewModel>(tester.element(listViewFinder),
+          listen: false);
       expect(listViewModel.items.length, 9);
 
       expect(find.widgetWithText(ListTile, itemToDeleteTextStr), findsNothing);
     });
 
-    testWidgets('select and move down item',
-        (WidgetTester tester) async {
+    testWidgets('select and move down item', (WidgetTester tester) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
@@ -544,8 +544,9 @@ void main() {
 
       // tester.element(listViewFinder) returns a StatefulElement
       // which is a BuildContext
-      ListViewModel listViewModel =
-          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      ListViewModel listViewModel = Provider.of<ListViewModel>(
+          tester.element(listViewFinder),
+          listen: false);
       expect(listViewModel.items.length, 10);
 
       // Find and select the ListTile to move'
@@ -561,20 +562,21 @@ void main() {
           find.widgetWithIcon(IconButton, Icons.arrow_drop_up));
       expect(upButton.onPressed, isNotNull);
 
+      Finder iconButtonFinder = find.widgetWithIcon(IconButton, Icons.arrow_drop_down);
       IconButton downButton = tester.widget<IconButton>(
-          find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+          iconButtonFinder);
       expect(downButton.onPressed, isNotNull);
 
       // Tap the move down button
-      await tester.tap(find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+      await tester.tap(iconButtonFinder);
       await tester.pump();
 
       listViewFinder = find.byType(ListViewWidget);
 
       // tester.element(listViewFinder) returns a StatefulElement
       // which is a BuildContext
-      listViewModel =
-          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      listViewModel = Provider.of<ListViewModel>(tester.element(listViewFinder),
+          listen: false);
       expect(listViewModel.items[1].name, 'Item 3');
       expect(listViewModel.items[2].name, 'Item 2');
     });
@@ -607,8 +609,9 @@ void main() {
 
       // tester.element(listViewFinder) returns a StatefulElement
       // which is a BuildContext
-      ListViewModel listViewModel =
-          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      ListViewModel listViewModel = Provider.of<ListViewModel>(
+          tester.element(listViewFinder),
+          listen: false);
       expect(listViewModel.items.length, 10);
 
       // Find and select the ListTile to move'
@@ -624,119 +627,156 @@ void main() {
           find.widgetWithIcon(IconButton, Icons.arrow_drop_up));
       expect(upButton.onPressed, isNotNull);
 
+      Finder iconButtonFinder = find.widgetWithIcon(IconButton, Icons.arrow_drop_down);
       IconButton downButton = tester.widget<IconButton>(
-          find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+          iconButtonFinder);
       expect(downButton.onPressed, isNotNull);
 
       // Tap the move down button twice
-      await tester.tap(find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+      await tester.tap(iconButtonFinder);
       await tester.pump();
-      await tester.tap(find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+      await tester.tap(iconButtonFinder);
       await tester.pump();
 
       listViewFinder = find.byType(ListViewWidget);
 
       // tester.element(listViewFinder) returns a StatefulElement
       // which is a BuildContext
-      listViewModel =
-          Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
+      listViewModel = Provider.of<ListViewModel>(tester.element(listViewFinder),
+          listen: false);
       expect(listViewModel.items[0].name, 'Item 9');
       expect(listViewModel.items[9].name, 'Item 10');
     });
 
-    testWidgets('should select and move up item', (WidgetTester tester) async {
-      // Build ListViewWidget with a list containing one item
-      final viewModel = ListViewModel();
-      viewModel.items.add(ListItem(name: 'Test', isSelected: false));
-
+    testWidgets('select and move up item', (WidgetTester tester) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
-            ChangeNotifierProvider.value(value: viewModel),
+            ChangeNotifierProvider(create: (_) => ListViewModel()),
           ],
           child: MaterialApp(
+            title: 'MVVM Example',
             home: Scaffold(
+              appBar: AppBar(
+                title: const Text('MVVM Example'),
+              ),
               body: ListViewWidget(),
             ),
           ),
         ),
       );
 
-      // Verify that the Delete button is disabled
-      expect(find.text('Delete'), findsOneWidget);
-      expect(find.widgetWithText(ElevatedButton, 'Delete'), findsOneWidget);
-      expect(
-        tester.widget<ElevatedButton>(
-            find.widgetWithText(ElevatedButton, 'Delete')),
-        isA<ElevatedButton>().having((b) => b.enabled, 'enabled', false),
-      );
-
-      // Tap the Checkbox to select the item
-      await tester.tap(find.byType(Checkbox));
+      // displaying the list
+      final Finder toggleButtonFinder = find.byKey(ValueKey('toggle_button'));
+      await tester.tap(toggleButtonFinder);
       await tester.pump();
 
-      // Verify that the Delete button is now enabled
-      expect(
-        tester.widget<ElevatedButton>(
-            find.widgetWithText(ElevatedButton, 'Delete')),
-        isA<ElevatedButton>().having((b) => b.enabled, 'enabled', true),
+      Finder listViewFinder = find.byType(ListViewWidget);
+
+      // tester.element(listViewFinder) returns a StatefulElement
+      // which is a BuildContext
+      ListViewModel listViewModel = Provider.of<ListViewModel>(
+          tester.element(listViewFinder),
+          listen: false);
+      expect(listViewModel.items.length, 10);
+
+      // Find and select the ListTile to move'
+      const String itemToDeleteTextStr = 'Item 5';
+
+      await findSelectAndTestListTileCheckbox(
+        tester: tester,
+        itemTextStr: itemToDeleteTextStr,
       );
 
-      // Tap the Delete button
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
+      // Verify that the move buttons are enabled
+      Finder iconButtonFinder = find.widgetWithIcon(IconButton, Icons.arrow_drop_up);
+      IconButton upButton = tester.widget<IconButton>(
+          iconButtonFinder);
+      expect(upButton.onPressed, isNotNull);
+
+      IconButton downButton = tester.widget<IconButton>(
+          find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+      expect(downButton.onPressed, isNotNull);
+
+      // Tap the move up button
+      await tester.tap(iconButtonFinder);
       await tester.pump();
 
-      // Verify that the item was deleted
-      expect(find.byType(ListTile), findsNothing);
-      expect(viewModel.items.length, equals(0));
+      listViewFinder = find.byType(ListViewWidget);
+
+      // tester.element(listViewFinder) returns a StatefulElement
+      // which is a BuildContext
+      listViewModel = Provider.of<ListViewModel>(tester.element(listViewFinder),
+          listen: false);
+      expect(listViewModel.items[3].name, 'Item 5');
+      expect(listViewModel.items[4].name, 'Item 4');
     });
 
-    testWidgets('should select and move up first item',
+    testWidgets('select and move up twice first item',
         (WidgetTester tester) async {
-      // Build ListViewWidget with a list containing one item
-      final viewModel = ListViewModel();
-      viewModel.items.add(ListItem(name: 'Test', isSelected: false));
-
       await tester.pumpWidget(
         MultiProvider(
           providers: [
-            ChangeNotifierProvider.value(value: viewModel),
+            ChangeNotifierProvider(create: (_) => ListViewModel()),
           ],
           child: MaterialApp(
+            title: 'MVVM Example',
             home: Scaffold(
+              appBar: AppBar(
+                title: const Text('MVVM Example'),
+              ),
               body: ListViewWidget(),
             ),
           ),
         ),
       );
 
-      // Verify that the Delete button is disabled
-      expect(find.text('Delete'), findsOneWidget);
-      expect(find.widgetWithText(ElevatedButton, 'Delete'), findsOneWidget);
-      expect(
-        tester.widget<ElevatedButton>(
-            find.widgetWithText(ElevatedButton, 'Delete')),
-        isA<ElevatedButton>().having((b) => b.enabled, 'enabled', false),
-      );
-
-      // Tap the Checkbox to select the item
-      await tester.tap(find.byType(Checkbox));
+      // displaying the list
+      final Finder toggleButtonFinder = find.byKey(ValueKey('toggle_button'));
+      await tester.tap(toggleButtonFinder);
       await tester.pump();
 
-      // Verify that the Delete button is now enabled
-      expect(
-        tester.widget<ElevatedButton>(
-            find.widgetWithText(ElevatedButton, 'Delete')),
-        isA<ElevatedButton>().having((b) => b.enabled, 'enabled', true),
+      Finder listViewFinder = find.byType(ListViewWidget);
+
+      // tester.element(listViewFinder) returns a StatefulElement
+      // which is a BuildContext
+      ListViewModel listViewModel = Provider.of<ListViewModel>(
+          tester.element(listViewFinder),
+          listen: false);
+      expect(listViewModel.items.length, 10);
+
+      // Find and select the ListTile to move'
+      const String itemToDeleteTextStr = 'Item 1';
+
+      await findSelectAndTestListTileCheckbox(
+        tester: tester,
+        itemTextStr: itemToDeleteTextStr,
       );
 
-      // Tap the Delete button
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
+      // Verify that the move buttons are enabled
+      Finder iconButtonFinder = find.widgetWithIcon(IconButton, Icons.arrow_drop_up);
+      IconButton upButton = tester.widget<IconButton>(
+          iconButtonFinder);
+      expect(upButton.onPressed, isNotNull);
+
+      IconButton downButton = tester.widget<IconButton>(
+          find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+      expect(downButton.onPressed, isNotNull);
+
+      // Tap twice the move up button
+      await tester.tap(iconButtonFinder);
+      await tester.pump();
+      await tester.tap(iconButtonFinder);
       await tester.pump();
 
-      // Verify that the item was deleted
-      expect(find.byType(ListTile), findsNothing);
-      expect(viewModel.items.length, equals(0));
+      listViewFinder = find.byType(ListViewWidget);
+
+      // tester.element(listViewFinder) returns a StatefulElement
+      // which is a BuildContext
+      listViewModel = Provider.of<ListViewModel>(tester.element(listViewFinder),
+          listen: false);
+      expect(listViewModel.items[0].name, 'Item 2');
+      expect(listViewModel.items[8].name, 'Item 1');
     });
   });
 }
@@ -745,7 +785,6 @@ Future<void> findSelectAndTestListTileCheckbox({
   required WidgetTester tester,
   required String itemTextStr,
 }) async {
-
   Finder listItemTileFinder = find.widgetWithText(ListTile, itemTextStr);
   // Find the Checkbox widget inside the ListTile
   Finder checkboxFinder = find.descendant(
