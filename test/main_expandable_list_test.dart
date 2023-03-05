@@ -579,7 +579,7 @@ void main() {
       expect(listViewModel.items[2].name, 'Item 2');
     });
 
-    testWidgets('select and move down last item',
+    testWidgets('select and move down twice before last item',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MultiProvider(
@@ -612,7 +612,7 @@ void main() {
       expect(listViewModel.items.length, 10);
 
       // Find and select the ListTile to move'
-      const String itemToDeleteTextStr = 'Item 2';
+      const String itemToDeleteTextStr = 'Item 9';
 
       await findSelectAndTestListTileCheckbox(
         tester: tester,
@@ -628,7 +628,9 @@ void main() {
           find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
       expect(downButton.onPressed, isNotNull);
 
-      // Tap the move down button
+      // Tap the move down button twice
+      await tester.tap(find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
+      await tester.pump();
       await tester.tap(find.widgetWithIcon(IconButton, Icons.arrow_drop_down));
       await tester.pump();
 
@@ -638,8 +640,8 @@ void main() {
       // which is a BuildContext
       listViewModel =
           Provider.of<ListViewModel>(tester.element(listViewFinder), listen: false);
-      expect(listViewModel.items[1].name, 'Item 3');
-      expect(listViewModel.items[2].name, 'Item 2');
+      expect(listViewModel.items[0].name, 'Item 9');
+      expect(listViewModel.items[9].name, 'Item 10');
     });
 
     testWidgets('should select and move up item', (WidgetTester tester) async {
@@ -744,10 +746,10 @@ Future<void> findSelectAndTestListTileCheckbox({
   required String itemTextStr,
 }) async {
 
-  Finder listItemFourTileFinder = find.widgetWithText(ListTile, itemTextStr);
+  Finder listItemTileFinder = find.widgetWithText(ListTile, itemTextStr);
   // Find the Checkbox widget inside the ListTile
   Finder checkboxFinder = find.descendant(
-    of: listItemFourTileFinder,
+    of: listItemTileFinder,
     matching: find.byType(Checkbox),
   );
 
@@ -756,7 +758,7 @@ Future<void> findSelectAndTestListTileCheckbox({
 
   // now tap the fourth item checkbox
   await tester.tap(find.descendant(
-    of: listItemFourTileFinder,
+    of: listItemTileFinder,
     matching: find.byWidgetPredicate((widget) => widget is Checkbox),
   ));
   await tester.pump();
