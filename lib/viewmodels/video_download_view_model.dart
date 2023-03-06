@@ -28,7 +28,7 @@ class VideoDownloadViewModel extends ChangeNotifier {
     await DirUtil.createDirIfNotExist(path: playlistToDownload.downloadPath);
 
     await for (Video video in _yt.playlists.getVideos(playlistToDownload.id)) {
-      final alreadyDownloaded = _downloadedVideoLst
+      final bool alreadyDownloaded = _downloadedVideoLst
           .any((downloadedVideo) => downloadedVideo.id == video.id.toString());
 
       if (alreadyDownloaded) {
@@ -46,6 +46,10 @@ class VideoDownloadViewModel extends ChangeNotifier {
       final String downloadVideoFilePathName =
           '${playlistToDownload.downloadPath}${Platform.pathSeparator}$validAudioFileName.mp3';
 
+      // Download the DownloadedVideo file
+      await _downloadAudioFile(
+          video, audioStreamInfo, downloadVideoFilePathName);
+
       final downloadedVideo = DownloadedVideo(
         id: video.id.toString(),
         title: video.title,
@@ -54,10 +58,6 @@ class VideoDownloadViewModel extends ChangeNotifier {
         downloadDate: DateTime.now(),
       );
 
-      // Download the DownloadedVideo file
-      await _downloadAudioFile(
-          video, audioStreamInfo, downloadVideoFilePathName);
-
       playlistToDownload.addDownloadedVideo(downloadedVideo);
 
       notifyListeners();
@@ -65,14 +65,15 @@ class VideoDownloadViewModel extends ChangeNotifier {
   }
 
   Future<void> _downloadAudioFile(
-      Video video, AudioStreamInfo audioStreamInfo, String filePath,) async {
-    final YoutubeExplode yt = YoutubeExplode();
-
-    final IOSink output = File(filePath).openWrite();
+    Video video,
+    AudioStreamInfo audioStreamInfo,
+    String audioFilePathName,
+  ) async {
+    final IOSink audioFile = File(audioFilePathName).openWrite();
     final Stream<List<int>> stream =
-        yt.videos.streamsClient.get(audioStreamInfo);
+        _yt.videos.streamsClient.get(audioStreamInfo);
 
-    await stream.pipe(output);
+    await stream.pipe(audioFile);
   }
 
   String _replaceUnauthorizedDirOrFileNameChars(String rawFileName) {
